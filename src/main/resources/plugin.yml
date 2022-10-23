@@ -1,0 +1,8 @@
+name: ArmorstandManager
+version: '1.0'
+authors: [FortressGames]
+main: net.fortressgames.armorstandmanager.ArmorstandManager
+api-version: 1.13
+depend:
+  - ProtocolLib
+  - FortressAPI
