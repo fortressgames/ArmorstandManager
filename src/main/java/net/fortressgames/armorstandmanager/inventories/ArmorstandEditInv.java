@@ -2,6 +2,7 @@ package net.fortressgames.armorstandmanager.inventories;
 
 import net.fortressgames.armorstandmanager.ArmorstandManager;
 import net.fortressgames.armorstandmanager.armorstands.ArmorstandHolder;
+import net.fortressgames.armorstandmanager.armorstands.ArmorstandUtils;
 import net.fortressgames.armorstandmanager.listeners.AnvilListener;
 import net.fortressgames.armorstandmanager.users.User;
 import net.fortressgames.armorstandmanager.users.UserModule;
@@ -316,7 +317,7 @@ public class ArmorstandEditInv extends InventoryMenu {
 	private ItemStack target(ArmorstandHolder customArmorstand) {
 		User user = UserModule.getInstance().getUser(getPlayer());
 
-		if(user.getTargetAS().equals(customArmorstand)) {
+		if(ArmorstandUtils.hasTarget(getPlayer()) && user.getTargetAS().equals(customArmorstand)) {
 			return new ItemBuilder(Material.TARGET).name(ChatColor.GOLD + "Select armorstand").lore(
 					ChatColor.GREEN + "SELECTED"
 			).enchant(Enchantment.UNBREAKING, 1).build();

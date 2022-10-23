@@ -35,7 +35,7 @@ public class SpawnArmorstandListener implements Listener {
 								e.getClickedBlock().getZ() + 0.5,
 								(Math.round(player.getLocation().getYaw() / 90) * 90) + 180,
 								0)
-				), 20, ArmorstandModule.getInstance().getNextID());
+				), ArmorstandModule.getInstance().getNextID(), 20);
 
 				armorstandHolder.getCustomArmorstand().setHeadPose(new EulerAngle(0, 0, 0));
 				armorstandHolder.getCustomArmorstand().setBodyPose(new EulerAngle(0, 0, 0));

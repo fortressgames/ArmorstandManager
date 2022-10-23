@@ -158,7 +158,7 @@ public class ASCommand extends CommandBase {
 			}
 
 			if(args[0].equalsIgnoreCase("list")) {
-				player.sendMessage(ChatColor.DARK_GRAY + ChatColor.STRIKETHROUGH.toString() + "                                                                                      ");
+				player.sendMessage(Lang.LINE);
 				player.sendMessage(ChatColor.of("#4FDA19") + ChatColor.BOLD.toString() + "Armorstands: (" + ArmorstandModule.getInstance().getCustomArmorstands().size() + ")");
 
 				List<String> list = new ArrayList<>();
@@ -174,7 +174,7 @@ public class ASCommand extends CommandBase {
 
 				player.sendMessage(net.md_5.bungee.api.ChatColor.of("#90A4AE") + list.toString());
 
-				player.sendMessage(ChatColor.DARK_GRAY + ChatColor.STRIKETHROUGH.toString() + "                                                                                      ");
+				player.sendMessage(Lang.LINE);
 				return;
 			}
 		}

@@ -17,7 +17,9 @@ import net.fortressgames.armorstandmanager.listeners.AnvilListener;
 import net.fortressgames.armorstandmanager.listeners.ClickListener;
 import net.fortressgames.armorstandmanager.listeners.PlayerMoveListener;
 import net.fortressgames.armorstandmanager.listeners.SpawnArmorstandListener;
+import net.fortressgames.armorstandmanager.users.UserModule;
 import net.fortressgames.fortressapi.commands.CommandModule;
+import net.fortressgames.fortressapi.players.PlayerModule;
 import net.fortressgames.fortressapi.utils.ConsoleMessage;
 import net.minecraft.network.protocol.game.PacketPlayInUseEntity;
 import org.bukkit.Bukkit;
@@ -58,13 +60,18 @@ public class ArmorstandManager extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 
+		Bukkit.getScheduler().runTaskAsynchronously(this, ArmorstandUtils::load);
+
+		// Listeners
 		this.getServer().getPluginManager().registerEvents(new PlayerMoveListener(), this);
 		this.getServer().getPluginManager().registerEvents(new AnvilListener(), this);
 		this.getServer().getPluginManager().registerEvents(new SpawnArmorstandListener(), this);
 		this.getServer().getPluginManager().registerEvents(new ClickListener(), this);
+		this.getServer().getPluginManager().registerEvents(UserModule.getInstance(), this);
 
-		Bukkit.getScheduler().runTaskAsynchronously(this, ArmorstandUtils::load);
+		PlayerModule.getInstance().getOnlinePlayers().forEach(UserModule.getInstance()::addUser);
 
+		// Commands
 		CommandModule.registerCommand(new ASCommand());
 
 		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Client.USE_ENTITY) {
@@ -80,7 +87,7 @@ public class ArmorstandManager extends JavaPlugin {
 					if(!e.getPlayer().hasPermission("as.use")) return;
 
 					for(ArmorstandHolder armorstandHolder : new ArrayList<>(ArmorstandModule.getInstance().getCustomArmorstands())) {
-						if(armorstandHolder.getID() == packet.getIntegers().read(0)) {
+						if(armorstandHolder.getCustomArmorstand().getId() == packet.getIntegers().read(0)) {
 							PacketPlayInUseEntity useEntity = (PacketPlayInUseEntity) packet.getHandle();
 
 							Field valueB = useEntity.getClass().getDeclaredField("b");
