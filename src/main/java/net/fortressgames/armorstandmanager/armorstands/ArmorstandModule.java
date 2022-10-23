@@ -22,6 +22,13 @@ public class ArmorstandModule {
 		}
 	}
 
+	public static ArmorstandModule getInstance() {
+		if(instance == null) {
+			instance = new ArmorstandModule();
+		}
+		return instance;
+	}
+
 	public int getNextID() {
 		this.ASNumberID++;
 		ArmorstandManager.getInstance().getConfig().set("ASNumberID", this.ASNumberID);
@@ -49,13 +56,5 @@ public class ArmorstandModule {
 		armorstandHolder.getFile().delete();
 
 		Bukkit.getOnlinePlayers().forEach(armorstandHolder.getCustomArmorstand()::remove);
-	}
-
-	public static ArmorstandModule getInstance() {
-		if(instance == null) {
-			instance = new ArmorstandModule();
-		}
-
-		return instance;
 	}
 }

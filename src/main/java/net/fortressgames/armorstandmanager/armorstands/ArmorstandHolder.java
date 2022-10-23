@@ -22,4 +22,10 @@ public class ArmorstandHolder {
 		this.renderDistance = renderDistance;
 		this.file = new File(ArmorstandManager.getInstance().getDataFolder() + "/Armorstands/" + ID + ".yml");
 	}
+
+	public ArmorstandHolder(CustomArmorstand customArmorstand, int ID) {
+		this.customArmorstand = customArmorstand;
+		this.ID = ID;
+		this.file = new File(ArmorstandManager.getInstance().getDataFolder() + "/Armorstands/" + ID + ".yml");
+	}
 }
