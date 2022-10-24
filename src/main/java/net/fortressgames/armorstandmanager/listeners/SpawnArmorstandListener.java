@@ -44,14 +44,13 @@ public class SpawnArmorstandListener implements Listener {
 				armorstandHolder.getCustomArmorstand().setLeftLegPose(new EulerAngle(0, 0, 0));
 				armorstandHolder.getCustomArmorstand().setRightLegPose(new EulerAngle(0, 0, 0));
 
-				ArmorstandModule.getInstance().addRender(armorstandHolder);
+				ArmorstandModule.getInstance().add(armorstandHolder);
 			}
 		}
 	}
 
 	@EventHandler
 	public void spawn(EntitySpawnEvent e) {
-
 		if(e.getEntity() instanceof ArmorStand) {
 			e.setCancelled(true);
 		}

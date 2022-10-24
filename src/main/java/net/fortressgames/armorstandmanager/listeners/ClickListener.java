@@ -4,10 +4,9 @@ import lombok.SneakyThrows;
 import net.fortressgames.armorstandmanager.armorstands.ArmorstandHolder;
 import net.fortressgames.armorstandmanager.users.User;
 import net.fortressgames.armorstandmanager.users.UserModule;
-import org.bukkit.Bukkit;
+import net.fortressgames.fortressapi.players.PlayerModule;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -152,40 +151,9 @@ public class ClickListener implements Listener {
 			}
 		}
 
-		YamlConfiguration config = YamlConfiguration.loadConfiguration(as.getFile());
+		as.savePose();
+		as.saveLocation();
 
-		config.set("HeadPos.X", as.getCustomArmorstand().getHeadPose().getX());
-		config.set("HeadPos.Y", as.getCustomArmorstand().getHeadPose().getY());
-		config.set("HeadPos.Z", as.getCustomArmorstand().getHeadPose().getZ());
-
-		config.set("BodyPos.X", as.getCustomArmorstand().getBodyPose().getX());
-		config.set("BodyPos.Y", as.getCustomArmorstand().getBodyPose().getY());
-		config.set("BodyPos.Z", as.getCustomArmorstand().getBodyPose().getZ());
-
-		config.set("RightArmPos.X", as.getCustomArmorstand().getRightArmPose().getX());
-		config.set("RightArmPos.Y", as.getCustomArmorstand().getRightArmPose().getY());
-		config.set("RightArmPos.Z", as.getCustomArmorstand().getRightArmPose().getZ());
-
-		config.set("LeftArmPos.X", as.getCustomArmorstand().getLeftArmPose().getX());
-		config.set("LeftArmPos.Y", as.getCustomArmorstand().getLeftArmPose().getY());
-		config.set("LeftArmPos.Z", as.getCustomArmorstand().getLeftArmPose().getZ());
-
-		config.set("RightLegPos.X", as.getCustomArmorstand().getRightLegPose().getX());
-		config.set("RightLegPos.Y", as.getCustomArmorstand().getRightLegPose().getY());
-		config.set("RightLegPos.Z", as.getCustomArmorstand().getRightLegPose().getZ());
-
-		config.set("LeftLegPos.X", as.getCustomArmorstand().getLeftLegPose().getX());
-		config.set("LeftLegPos.Y", as.getCustomArmorstand().getLeftLegPose().getY());
-		config.set("LeftLegPos.Z", as.getCustomArmorstand().getLeftLegPose().getZ());
-
-		config.set("Location.World", as.getCustomArmorstand().getLocation().getWorld().getName());
-		config.set("Location.X", as.getCustomArmorstand().getLocation().getX());
-		config.set("Location.Y", as.getCustomArmorstand().getLocation().getY());
-		config.set("Location.Z", as.getCustomArmorstand().getLocation().getZ());
-		config.set("Location.Yaw", as.getCustomArmorstand().getLocation().getYaw());
-		config.set("Location.Pitch", as.getCustomArmorstand().getLocation().getPitch());
-
-		config.save(as.getFile());
-		Bukkit.getOnlinePlayers().forEach(as.getCustomArmorstand()::update);
+		PlayerModule.getInstance().getOnlinePlayers().forEach(as.getCustomArmorstand()::update);
 	}
 }

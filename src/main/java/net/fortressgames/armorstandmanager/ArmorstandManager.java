@@ -11,7 +11,6 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import net.fortressgames.armorstandmanager.armorstands.ArmorstandHolder;
 import net.fortressgames.armorstandmanager.armorstands.ArmorstandModule;
-import net.fortressgames.armorstandmanager.armorstands.ArmorstandUtils;
 import net.fortressgames.armorstandmanager.inventories.ArmorstandEditInv;
 import net.fortressgames.armorstandmanager.listeners.AnvilListener;
 import net.fortressgames.armorstandmanager.listeners.ClickListener;
@@ -60,7 +59,7 @@ public class ArmorstandManager extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 
-		Bukkit.getScheduler().runTaskAsynchronously(this, ArmorstandUtils::load);
+		Bukkit.getScheduler().runTaskAsynchronously(this, ArmorstandModule::load);
 
 		// Listeners
 		this.getServer().getPluginManager().registerEvents(new PlayerMoveListener(), this);

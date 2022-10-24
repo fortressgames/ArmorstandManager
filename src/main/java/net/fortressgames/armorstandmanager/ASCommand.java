@@ -3,16 +3,14 @@ package net.fortressgames.armorstandmanager;
 import lombok.SneakyThrows;
 import net.fortressgames.armorstandmanager.armorstands.ArmorstandHolder;
 import net.fortressgames.armorstandmanager.armorstands.ArmorstandModule;
-import net.fortressgames.armorstandmanager.armorstands.ArmorstandUtils;
 import net.fortressgames.armorstandmanager.listeners.ClickListener;
 import net.fortressgames.armorstandmanager.users.User;
 import net.fortressgames.armorstandmanager.users.UserModule;
 import net.fortressgames.fortressapi.Lang;
 import net.fortressgames.fortressapi.commands.CommandBase;
+import net.fortressgames.fortressapi.players.PlayerModule;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -45,118 +43,131 @@ public class ASCommand extends CommandBase {
 				return;
 			}
 
+			//
+			// MOVE TO
+			//
 			if(args[0].equalsIgnoreCase("moveto")) {
-				if(ArmorstandUtils.hasTarget(player)) {
+				if(ArmorstandModule.hasTarget(player)) {
 					ArmorstandHolder armorstandHolder = user.getTargetAS();
-					YamlConfiguration config = YamlConfiguration.loadConfiguration(armorstandHolder.getFile());
 
 					armorstandHolder.getCustomArmorstand().setLocation(player.getLocation());
-					Bukkit.getOnlinePlayers().forEach(armorstandHolder.getCustomArmorstand()::update);
+					PlayerModule.getInstance().getOnlinePlayers().forEach(armorstandHolder.getCustomArmorstand()::update);
+					armorstandHolder.saveLocation();
 
-					config.set("Location.World", armorstandHolder.getCustomArmorstand().getLocation().getWorld().getName());
-					config.set("Location.X", armorstandHolder.getCustomArmorstand().getLocation().getX());
-					config.set("Location.Y", armorstandHolder.getCustomArmorstand().getLocation().getY());
-					config.set("Location.Z", armorstandHolder.getCustomArmorstand().getLocation().getZ());
-					config.set("Location.Yaw", armorstandHolder.getCustomArmorstand().getLocation().getYaw());
-					config.set("Location.Pitch", armorstandHolder.getCustomArmorstand().getLocation().getPitch());
-
-					config.save(armorstandHolder.getFile());
-
-					player.sendMessage(ChatColor.GREEN + "Moved!");
+					player.sendMessage(ASLang.AS_MOVED);
 				}
 				return;
 			}
 
+			//
+			// SET
+			//
 			if(args[0].equalsIgnoreCase("set")) {
-				if(ArmorstandUtils.hasTarget(player)) {
+				if(ArmorstandModule.hasTarget(player)) {
 					ArmorstandHolder armorstandHolder = user.getTargetAS();
 
 					double value;
 					try {
 						value = Double.parseDouble(args[1]);
 					} catch (IllegalArgumentException e) {
-						player.sendMessage(ChatColor.RED + "Value is not a number!");
+						player.sendMessage(ASLang.INVALID_NUMBER);
 						return;
 					}
 
 					ClickListener.movePart(player, armorstandHolder, value, true, true);
-					player.sendMessage(ChatColor.GREEN + "Moved!");
+					player.sendMessage(ASLang.AS_MOVED);
 				}
 				return;
 			}
 
+			//
+			// ADD
+			//
 			if(args[0].equalsIgnoreCase("add") && args.length == 2) {
-				if(ArmorstandUtils.hasTarget(player)) {
+				if(ArmorstandModule.hasTarget(player)) {
 					ArmorstandHolder armorstandHolder = user.getTargetAS();
 
 					double value;
 					try {
 						value = Double.parseDouble(args[1]);
 					} catch (IllegalArgumentException e) {
-						player.sendMessage(ChatColor.RED + "Value is not a number!");
+						player.sendMessage(ASLang.INVALID_NUMBER);
 						return;
 					}
 
 					ClickListener.movePart(player, armorstandHolder, value, true, false);
-					player.sendMessage(ChatColor.GREEN + "Moved!");
+					player.sendMessage(ASLang.AS_MOVED);
 				}
 				return;
 			}
 
+			//
+			// KILL
+			//
 			if(args[0].equalsIgnoreCase("kill") && args.length == 2) {
-				kill(sender, Integer.parseInt(args[1]));
+				ArmorstandHolder armorstandHolder = null;
+
+				for(ArmorstandHolder armorstand : ArmorstandModule.getInstance().getCustomArmorstands()) {
+					if(armorstand.getID() == Integer.parseInt(args[1])) {
+						armorstandHolder = armorstand;
+						break;
+					}
+				}
+
+				if(armorstandHolder == null) {
+					sender.sendMessage(ASLang.UNKNOWN_ID);
+					return;
+				}
+
+				ArmorstandModule.getInstance().remove(armorstandHolder);
+				sender.sendMessage(ASLang.AS_REMOVED);
 				return;
 			}
 
+			//
+			// RENDER
+			//
 			if(args[0].equalsIgnoreCase("render") && args.length == 2) {
-				if(ArmorstandUtils.hasTarget(player)) {
+				if(ArmorstandModule.hasTarget(player)) {
 					ArmorstandHolder armorstandHolder = user.getTargetAS();
-					YamlConfiguration config = YamlConfiguration.loadConfiguration(armorstandHolder.getFile());
 
 					armorstandHolder.setRenderDistance(Integer.parseInt(args[1]));
+					armorstandHolder.saveRender();
 
-					if(args[1].equalsIgnoreCase("-1")) {
-						ArmorstandModule.getInstance().getRenderList().remove(armorstandHolder);
-					}
-
-					config.set("RenderDistance", armorstandHolder.getRenderDistance());
-					config.save(armorstandHolder.getFile());
-
-					Bukkit.getOnlinePlayers().forEach(pp -> {
+					PlayerModule.getInstance().getOnlinePlayers().forEach(pp -> {
 						armorstandHolder.getCustomArmorstand().remove(pp);
 						armorstandHolder.getCustomArmorstand().spawn(pp);
 					});
 
-					player.sendMessage(ChatColor.GREEN + "Armorstand render set to " + args[1]);
+					player.sendMessage(ASLang.ASRender(args[1]));
 				}
 				return;
 			}
 
+			//
+			// TOGGLE
+			//
 			if(args[0].equalsIgnoreCase("toggle")) {
 				if(ArmorstandManager.getInstance().isToggle()) {
 					ArmorstandManager.getInstance().setToggle(false);
+					player.sendMessage(ASLang.ASToggle("off"));
 
-					Bukkit.getOnlinePlayers().forEach(pp ->
-							ArmorstandModule.getInstance().getCustomArmorstands().forEach(armorstandHolder -> armorstandHolder.getCustomArmorstand().remove(pp)));
+					PlayerModule.getInstance().getOnlinePlayers().forEach(pp -> {
 
-					player.sendMessage(ChatColor.GREEN + "Armorstands toggled off!");
-				} else {
-					ArmorstandManager.getInstance().setToggle(true);
-
-					Bukkit.getOnlinePlayers().forEach(pp -> {
-						List<ArmorstandHolder> armorstands = new ArrayList<>(ArmorstandModule.getInstance().getCustomArmorstands());
-						armorstands.removeAll(ArmorstandModule.getInstance().getRenderList());
-
-						for(ArmorstandHolder customArmorstand : armorstands) {
-							customArmorstand.getCustomArmorstand().spawn(pp);
-						}
+						ArmorstandModule.getInstance().getCustomArmorstands().forEach(armorstandHolder -> armorstandHolder.getCustomArmorstand().remove(pp));
+						UserModule.getInstance().getUser(pp).getSpawned().clear();
 					});
 
-					player.sendMessage(ChatColor.GREEN + "Armorstands toggled on!");
+				} else {
+					ArmorstandManager.getInstance().setToggle(true);
+					player.sendMessage(ASLang.ASToggle("on"));
 				}
 				return;
 			}
 
+			//
+			// LIST
+			//
 			if(args[0].equalsIgnoreCase("list")) {
 				player.sendMessage(Lang.LINE);
 				player.sendMessage(ChatColor.of("#4FDA19") + ChatColor.BOLD.toString() + "Armorstands: (" + ArmorstandModule.getInstance().getCustomArmorstands().size() + ")");
@@ -180,28 +191,10 @@ public class ASCommand extends CommandBase {
 		}
 	}
 
-	private void kill(CommandSender sender, int id) {
-		ArmorstandHolder armorstandHolder = null;
-		for(ArmorstandHolder armorstand : ArmorstandModule.getInstance().getCustomArmorstands()) {
-			if(armorstand.getID() == id) {
-				armorstandHolder = armorstand;
-				break;
-			}
-		}
-
-		if(armorstandHolder == null) {
-			sender.sendMessage(ChatColor.RED + "Unknown id");
-			return;
-		}
-
-		ArmorstandModule.getInstance().remove(armorstandHolder);
-		sender.sendMessage(ChatColor.GREEN + "Deleted!");
-	}
-
 	@Override
 	public List<String> tabComplete(CommandSender sender, String alias, String[] args) {
 		if(args.length == 1) {
-			return Arrays.asList("list", "toggle", "render", "kill", "animation", "set", "add", "moveto");
+			return Arrays.asList("list", "toggle", "render", "kill", "set", "add", "moveto");
 		}
 
 		return super.tabComplete(sender, alias, args);
