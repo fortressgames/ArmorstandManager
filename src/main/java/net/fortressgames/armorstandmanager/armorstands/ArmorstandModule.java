@@ -18,7 +18,6 @@ import java.util.List;
 public class ArmorstandModule {
 
 	private static ArmorstandModule instance;
-
 	@Getter private final List<ArmorstandHolder> customArmorstands = new ArrayList<>();
 
 	private int ASNumberID = 0;
@@ -66,13 +65,10 @@ public class ArmorstandModule {
 	}
 
 	public static boolean hasTargetSilent(Player player) {
-		if(UserModule.getInstance().getUser(player).getTargetAS() != null) {
-			return true;
-		}
-		return false;
+		return UserModule.getInstance().getUser(player).getTargetAS() != null;
 	}
 
-	public static void load() {
+	public void load() {
 		for(File file : new File(ArmorstandManager.getInstance().getDataFolder() + "/Armorstands").listFiles()) {
 			YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
@@ -138,6 +134,10 @@ public class ArmorstandModule {
 
 				if(config.contains("CustomName")) {
 					armorstandHolder.getCustomArmorstand().setCustomName(config.getString("CustomName"));
+				}
+
+				if(config.contains("Animation")) {
+					armorstandHolder.setAnimation(AnimationModule.getInstance().getAnimation(config.getString("Animation")));
 				}
 
 				ArmorstandModule.getInstance().getCustomArmorstands().add(armorstandHolder);

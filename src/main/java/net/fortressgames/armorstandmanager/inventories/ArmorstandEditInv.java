@@ -7,6 +7,7 @@ import net.fortressgames.armorstandmanager.listeners.AnvilListener;
 import net.fortressgames.armorstandmanager.users.User;
 import net.fortressgames.armorstandmanager.users.UserModule;
 import net.fortressgames.armorstandmanager.utils.Type;
+import net.fortressgames.fortressapi.Lang;
 import net.fortressgames.fortressapi.gui.InventoryMenu;
 import net.fortressgames.fortressapi.gui.InventoryRows;
 import net.fortressgames.fortressapi.gui.ItemBuilder;
@@ -164,7 +165,7 @@ public class ArmorstandEditInv extends InventoryMenu {
 			user.setTargetAS(armorstandHolder);
 
 			player.closeInventory();
-			player.sendMessage(ChatColor.GREEN + ChatColor.BOLD.toString() + "Selected!");
+			player.sendMessage(Lang.GREEN + "Selected!");
 		}, true);
 
 		this.setItem(info(), 51, true);

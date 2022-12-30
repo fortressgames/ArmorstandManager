@@ -3,82 +3,28 @@ package net.fortressgames.armorstandmanager.armorstands;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import net.fortressgames.armorstandmanager.ASLang;
-import net.fortressgames.armorstandmanager.ArmorstandManager;
-import net.fortressgames.armorstandmanager.inventories.ArmorstandEditInv;
 import net.fortressgames.fortressapi.entities.CustomArmorstand;
-import net.fortressgames.fortressapi.listeners.ClickEvent;
-import net.fortressgames.fortressapi.listeners.ClickType;
-import org.bukkit.GameMode;
-import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 
-public class ArmorstandHolder {
+public class AnimationState {
 
-	private final File file;
-	private final YamlConfiguration configuration;
-	@Getter private final CustomArmorstand customArmorstand;
-	@Getter private final int ID;
+	@Setter @Getter private CustomArmorstand customArmorstand;
+	@Setter @Getter	private int ticks = 0;
 
-	@Setter	@Getter private boolean lock;
-	@Setter	@Getter private double renderDistance;
-
-	@Setter @Getter private Animation animation = null;
-
-	public ArmorstandHolder(CustomArmorstand customArmorstand, int ID, int renderDistance) {
+	public AnimationState(CustomArmorstand customArmorstand) {
 		this.customArmorstand = customArmorstand;
-		this.ID = ID;
-		this.renderDistance = renderDistance;
-		this.file = new File(ArmorstandManager.getInstance().getDataFolder() + "/Armorstands/" + ID + ".yml");
-		this.configuration = YamlConfiguration.loadConfiguration(file);
-
-		ClickEvent.addClickEntity(customArmorstand.getEntity(), (player, entity) -> {
-			if(player.hasPermission("as.use")) {
-				new ArmorstandEditInv(player, this).openInventory();
-			}
-		}, ClickType.LEFT);
-
-		ClickEvent.addClickEntity(customArmorstand.getEntity(), (player, entity) -> {
-			if(player.getGameMode() == GameMode.CREATIVE) {
-
-				if(this.isLock()) {
-					player.sendMessage(ASLang.AS_LOCKED);
-					return;
-				}
-
-				ArmorstandModule.getInstance().remove(this);
-				player.playSound(player.getLocation(), Sound.ENTITY_ARMOR_STAND_BREAK, 100, 1);
-			}
-		}, ClickType.RIGHT);
-	}
-
-	public void deleteFile() {
-		file.delete();
-	}
-
-	public void save() {
-		saveItems();
-		saveLocation();
-		savePose();
-		saveID();
-		saveRender();
-		saveLock();
-		saveAttributes();
-		saveName();
-		saveAnimation();
 	}
 
 	@SneakyThrows
-	public void saveAnimation() {
-		if(this.animation == null) return;
-		configuration.set("Animation", this.animation.getName());
-		configuration.save(file);
-	}
+	public void save(File parent, int i) {
+		File animationFile = new File(parent.getPath() + "/" + i + ".yml");
+		if(!animationFile.exists()) animationFile.createNewFile();
+		YamlConfiguration configuration = YamlConfiguration.loadConfiguration(animationFile);
 
-	@SneakyThrows
-	public void saveItems() {
+		configuration.set("ticks", ticks);
+
 		configuration.set("Items.MainHand", customArmorstand.getItemInMainHand());
 		configuration.set("Items.OffHand", customArmorstand.getItemInOffHand());
 		configuration.set("Items.Helmet", customArmorstand.getHelmet());
@@ -86,11 +32,6 @@ public class ArmorstandHolder {
 		configuration.set("Items.Leggings", customArmorstand.getLeggings());
 		configuration.set("Items.Boots", customArmorstand.getBoots());
 
-		configuration.save(file);
-	}
-
-	@SneakyThrows
-	public void savePose() {
 		configuration.set("HeadPos.X", customArmorstand.getHeadPose().getX());
 		configuration.set("HeadPos.Y", customArmorstand.getHeadPose().getY());
 		configuration.set("HeadPos.Z", customArmorstand.getHeadPose().getZ());
@@ -115,11 +56,6 @@ public class ArmorstandHolder {
 		configuration.set("RightLegPos.Y", customArmorstand.getRightLegPose().getY());
 		configuration.set("RightLegPos.Z", customArmorstand.getRightLegPose().getZ());
 
-		configuration.save(file);
-	}
-
-	@SneakyThrows
-	public void saveLocation() {
 		configuration.set("Location.World", customArmorstand.getLocation().getWorld().getName());
 		configuration.set("Location.X", customArmorstand.getLocation().getX());
 		configuration.set("Location.Y", customArmorstand.getLocation().getY());
@@ -127,46 +63,14 @@ public class ArmorstandHolder {
 		configuration.set("Location.Yaw", customArmorstand.getLocation().getYaw());
 		configuration.set("Location.Pitch", customArmorstand.getLocation().getPitch());
 
-		configuration.save(file);
-	}
-
-	@SneakyThrows
-	public void saveRender() {
-		configuration.set("RenderDistance", renderDistance);
-
-		configuration.save(file);
-	}
-
-	@SneakyThrows
-	public void saveID() {
-		configuration.set("ID", ID);
-
-		configuration.save(file);
-	}
-
-	@SneakyThrows
-	public void saveLock() {
-		configuration.set("Lock", lock);
-
-		configuration.save(file);
-	}
-
-	@SneakyThrows
-	public void saveName() {
 		configuration.set("CustomName", customArmorstand.getCustomName());
 
-		configuration.save(file);
-	}
-
-	@SneakyThrows
-	public void saveAttributes() {
 		configuration.set("BasePlate", customArmorstand.isBasePlate());
 		configuration.set("Invisible", customArmorstand.isInvisible());
 		configuration.set("Arms", customArmorstand.isArms());
 		configuration.set("Small", customArmorstand.isSmall());
 		configuration.set("CustomNameVisible", customArmorstand.isCustomNameVisible());
-		configuration.set("Silent", customArmorstand.isSilent());
 
-		configuration.save(file);
+		configuration.save(animationFile);
 	}
 }
