@@ -37,7 +37,7 @@ public class ArmorstandEditInv extends InventoryMenu {
 		this.armorstandHolder = armorstandHolder;
 		User user = UserModule.getInstance().getUser(player);
 
-		List<Integer> slots = new ArrayList<>(Arrays.asList(52, 46, 48, 53, 36, 37, 38, 45, 47, 0, 2, 3, 12, 18, 20, 21, 27, 29, 30, 31, 32, 33, 34, 35, 13, 22, 23, 24, 25, 4, 26));
+		List<Integer> slots = new ArrayList<>(Arrays.asList(46, 48, 53, 36, 37, 38, 45, 47, 0, 2, 3, 12, 18, 20, 21, 27, 29, 30, 31, 32, 33, 34, 35, 13, 22, 23, 24, 25, 4, 26));
 		for(Integer slot : slots) {
 			this.setItem(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build(), slot, true);
 		}
@@ -169,6 +169,20 @@ public class ArmorstandEditInv extends InventoryMenu {
 		}, true);
 
 		this.setItem(info(), 51, true);
+
+		this.setItem(animation(armorstandHolder), 52);
+	}
+
+	private ItemStack animation(ArmorstandHolder armorstandHolder) {
+		if(armorstandHolder.getAnimation() == null) {
+			return new ItemBuilder(Material.BARRIER).name(ChatColor.GOLD + "Animation").lore(
+					ChatColor.RED + "NONE"
+			).build();
+		} else {
+			return new ItemBuilder(Material.NETHER_STAR).name(ChatColor.GOLD + "Animation").lore(
+					ChatColor.WHITE + "Animation: " + ChatColor.GREEN + armorstandHolder.getAnimation().getName()
+			).build();
+		}
 	}
 
 	/**

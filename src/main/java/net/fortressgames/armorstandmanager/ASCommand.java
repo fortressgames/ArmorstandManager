@@ -70,7 +70,7 @@ public class ASCommand extends CommandBase {
 					try {
 						value = Double.parseDouble(args[1]);
 					} catch (IllegalArgumentException e) {
-						player.sendMessage(ASLang.INVALID_NUMBER);
+						player.sendMessage(ASLang.ERROR_NUMBER_FORMAT);
 						return;
 					}
 
@@ -91,7 +91,7 @@ public class ASCommand extends CommandBase {
 					try {
 						value = Double.parseDouble(args[1]);
 					} catch (IllegalArgumentException e) {
-						player.sendMessage(ASLang.INVALID_NUMBER);
+						player.sendMessage(ASLang.ERROR_NUMBER_FORMAT);
 						return;
 					}
 

@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class ArmorstandManager extends JavaPlugin {
 
@@ -40,6 +41,15 @@ public class ArmorstandManager extends JavaPlugin {
 		if(!asa.exists()) {
 			asa.mkdir();
 		}
+
+		if(!getConfig().contains("Animation-Loop")) {
+			getConfig().set("Animation-Loop", new ArrayList<>());
+		}
+		if(!getConfig().contains("Animation-RunOnStart")) {
+			getConfig().set("Animation-RunOnStart", new ArrayList<>());
+		}
+
+		saveConfig();
 	}
 
 	/**
@@ -73,6 +83,13 @@ public class ArmorstandManager extends JavaPlugin {
 	 */
 	@Override
 	public void onDisable() {
+		PlayerModule.getInstance().getOnlinePlayers().forEach(pp -> {
+			UserModule.getInstance().getUser(pp).getSpawned().forEach(armorstandHolder -> armorstandHolder.getCustomArmorstand().remove(pp));
+		});
+
 		getLogger().info(ConsoleMessage.RED + "Version: " + getDescription().getVersion() + " Disabled!" + ConsoleMessage.RESET);
 	}
 }
+
+//TODO (BUGS)
+// animation gets lost after reload sometimes

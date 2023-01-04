@@ -27,6 +27,8 @@ public class ArmorstandHolder {
 
 	@Setter @Getter private Animation animation = null;
 
+	@Setter @Getter private boolean loopAnimation = false;
+
 	public ArmorstandHolder(CustomArmorstand customArmorstand, int ID, int renderDistance) {
 		this.customArmorstand = customArmorstand;
 		this.ID = ID;

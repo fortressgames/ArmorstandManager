@@ -140,7 +140,15 @@ public class ArmorstandModule {
 					armorstandHolder.setAnimation(AnimationModule.getInstance().getAnimation(config.getString("Animation")));
 				}
 
+				if(ArmorstandManager.getInstance().getConfig().getStringList("Animation-Loop").contains(String.valueOf(armorstandHolder.getID()))) {
+					armorstandHolder.setLoopAnimation(true);
+				}
+
 				ArmorstandModule.getInstance().getCustomArmorstands().add(armorstandHolder);
+
+				if(ArmorstandManager.getInstance().getConfig().getStringList("Animation-RunOnStart").contains(String.valueOf(armorstandHolder.getID()))) {
+					armorstandHolder.getAnimation().play(armorstandHolder);
+				}
 			});
 		}
 	}

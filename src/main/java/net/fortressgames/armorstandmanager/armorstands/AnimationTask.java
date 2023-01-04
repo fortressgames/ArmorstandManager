@@ -5,17 +5,21 @@ import net.fortressgames.fortressapi.entities.CustomArmorstand;
 import net.fortressgames.fortressapi.players.PlayerModule;
 import org.bukkit.Location;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 
 public class AnimationTask extends FortressRunnable {
 
+	// the current moving armorstand
+	private final ArmorstandHolder armorstandHolder;
 	private final CustomArmorstand customArmorstand;
 	private final Animation animation;
 
 	private int frame;
 	private int ticks;
 
-	public AnimationTask(CustomArmorstand customArmorstand, Animation animation) {
-		this.customArmorstand = customArmorstand;
+	public AnimationTask(ArmorstandHolder armorstandHolder, Animation animation) {
+		this.armorstandHolder = armorstandHolder;
+		this.customArmorstand = armorstandHolder.getCustomArmorstand();
 		this.animation = animation;
 
 		old = new CustomArmorstand(customArmorstand);
@@ -25,8 +29,15 @@ public class AnimationTask extends FortressRunnable {
 
 	@Override
 	public void run() {
+
 		// end
 		if(frame >= animation.getAnimationStates().size()) {
+
+			if(armorstandHolder.isLoopAnimation()) {
+				frame = 0;
+				return;
+			}
+
 			stop();
 			return;
 		}
@@ -34,83 +45,61 @@ public class AnimationTask extends FortressRunnable {
 		// target state
 		AnimationState animationState = animation.getAnimationStates().get(frame);
 
-		// get value to add/remove each tick
-		double locX = getValue(animationState.getCustomArmorstand().getLocation().getX(), old.getLocation().getX(), animationState.getTicks());
-		double locY = getValue(animationState.getCustomArmorstand().getLocation().getY(), old.getLocation().getY(), animationState.getTicks());
-		double locZ = getValue(animationState.getCustomArmorstand().getLocation().getZ(), old.getLocation().getZ(), animationState.getTicks());
-
+		Vector locationVector = getVector(animationState.getCustomArmorstand().getLocation(), old.getLocation(), animationState);
 		customArmorstand.setLocation(new Location(customArmorstand.getLocation().getWorld(),
-				customArmorstand.getLocation().getX() + locX,
-				customArmorstand.getLocation().getY() + locY,
-				customArmorstand.getLocation().getZ() + locZ
+				animationState.getCustomArmorstand().getLocation().getX() -(locationVector.getX() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getLocation().getY() -(locationVector.getY() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getLocation().getZ() -(locationVector.getZ() * (animationState.getTicks() - ticks))
 		));
 
-		// get value to add/remove each tick
-		double headX = getValue(animationState.getCustomArmorstand().getHeadPose().getX(), old.getHeadPose().getX(), animationState.getTicks());
-		double headY = getValue(animationState.getCustomArmorstand().getHeadPose().getY(), old.getHeadPose().getY(), animationState.getTicks());
-		double headZ = getValue(animationState.getCustomArmorstand().getHeadPose().getZ(), old.getHeadPose().getZ(), animationState.getTicks());
-
+		//
+		// body parts
+		//
+		Vector headVector = getVector(animationState.getCustomArmorstand().getHeadPose(), old.getHeadPose(), animationState);
 		customArmorstand.setHeadPose(new EulerAngle(
-				customArmorstand.getHeadPose().getX() + headX,
-				customArmorstand.getHeadPose().getY() + headY,
-				customArmorstand.getHeadPose().getZ() + headZ
+				animationState.getCustomArmorstand().getHeadPose().getX() -(headVector.getX() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getHeadPose().getY() -(headVector.getY() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getHeadPose().getZ() -(headVector.getZ() * (animationState.getTicks() - ticks))
 		));
 
-		// get value to add/remove each tick
-		double BodyX = getValue(animationState.getCustomArmorstand().getBodyPose().getX(), old.getBodyPose().getX(), animationState.getTicks());
-		double BodyY = getValue(animationState.getCustomArmorstand().getBodyPose().getY(), old.getBodyPose().getY(), animationState.getTicks());
-		double BodyZ = getValue(animationState.getCustomArmorstand().getBodyPose().getZ(), old.getBodyPose().getZ(), animationState.getTicks());
-
+		Vector bodyVector = getVector(animationState.getCustomArmorstand().getBodyPose(), old.getBodyPose(), animationState);
 		customArmorstand.setBodyPose(new EulerAngle(
-				customArmorstand.getBodyPose().getX() + BodyX,
-				customArmorstand.getBodyPose().getY() + BodyY,
-				customArmorstand.getBodyPose().getZ() + BodyZ
+				animationState.getCustomArmorstand().getBodyPose().getX() -(bodyVector.getX() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getBodyPose().getY() -(bodyVector.getY() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getBodyPose().getZ() -(bodyVector.getZ() * (animationState.getTicks() - ticks))
 		));
 
-		// get value to add/remove each tick
-		double RLX = getValue(animationState.getCustomArmorstand().getRightLegPose().getX(), old.getRightLegPose().getX(), animationState.getTicks());
-		double RLY = getValue(animationState.getCustomArmorstand().getRightLegPose().getY(), old.getRightLegPose().getY(), animationState.getTicks());
-		double RLZ = getValue(animationState.getCustomArmorstand().getRightLegPose().getZ(), old.getRightLegPose().getZ(), animationState.getTicks());
-
+		Vector rightLegVector = getVector(animationState.getCustomArmorstand().getRightLegPose(), old.getRightLegPose(), animationState);
 		customArmorstand.setRightLegPose(new EulerAngle(
-				customArmorstand.getRightLegPose().getX() + RLX,
-				customArmorstand.getRightLegPose().getY() + RLY,
-				customArmorstand.getRightLegPose().getZ() + RLZ
+				animationState.getCustomArmorstand().getRightLegPose().getX() -(rightLegVector.getX() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getRightLegPose().getY() -(rightLegVector.getY() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getRightLegPose().getZ() -(rightLegVector.getZ() * (animationState.getTicks() - ticks))
 		));
 
-		// get value to add/remove each tick
-		double LLX = getValue(animationState.getCustomArmorstand().getLeftLegPose().getX(), old.getLeftLegPose().getX(), animationState.getTicks());
-		double LLY = getValue(animationState.getCustomArmorstand().getLeftLegPose().getY(), old.getLeftLegPose().getY(), animationState.getTicks());
-		double LLZ = getValue(animationState.getCustomArmorstand().getLeftLegPose().getZ(), old.getLeftLegPose().getZ(), animationState.getTicks());
-
+		Vector leftLegVector = getVector(animationState.getCustomArmorstand().getLeftLegPose(), old.getLeftLegPose(), animationState);
 		customArmorstand.setLeftLegPose(new EulerAngle(
-				customArmorstand.getLeftLegPose().getX() + LLX,
-				customArmorstand.getLeftLegPose().getY() + LLY,
-				customArmorstand.getLeftLegPose().getZ() + LLZ
+				animationState.getCustomArmorstand().getLeftLegPose().getX() -(leftLegVector.getX() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getLeftLegPose().getY() -(leftLegVector.getY() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getLeftLegPose().getZ() -(leftLegVector.getZ() * (animationState.getTicks() - ticks))
 		));
 
-		// get value to add/remove each tick
-		double RAX = getValue(animationState.getCustomArmorstand().getRightArmPose().getX(), old.getRightArmPose().getX(), animationState.getTicks());
-		double RAY = getValue(animationState.getCustomArmorstand().getRightArmPose().getY(), old.getRightArmPose().getY(), animationState.getTicks());
-		double RAZ = getValue(animationState.getCustomArmorstand().getRightArmPose().getZ(), old.getRightArmPose().getZ(), animationState.getTicks());
-
+		Vector rightArmVector = getVector(animationState.getCustomArmorstand().getRightArmPose(), old.getRightArmPose(), animationState);
 		customArmorstand.setRightArmPose(new EulerAngle(
-				customArmorstand.getRightArmPose().getX() + RAX,
-				customArmorstand.getRightArmPose().getY() + RAY,
-				customArmorstand.getRightArmPose().getZ() + RAZ
+				animationState.getCustomArmorstand().getRightArmPose().getX() -(rightArmVector.getX() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getRightArmPose().getY() -(rightArmVector.getY() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getRightArmPose().getZ() -(rightArmVector.getZ() * (animationState.getTicks() - ticks))
 		));
 
-		// get value to add/remove each tick
-		double LAX = getValue(animationState.getCustomArmorstand().getLeftArmPose().getX(), old.getLeftArmPose().getX(), animationState.getTicks());
-		double LAY = getValue(animationState.getCustomArmorstand().getLeftArmPose().getY(), old.getLeftArmPose().getY(), animationState.getTicks());
-		double LAZ = getValue(animationState.getCustomArmorstand().getLeftArmPose().getZ(), old.getLeftArmPose().getZ(), animationState.getTicks());
-
+		Vector leftArmVector = getVector(animationState.getCustomArmorstand().getLeftArmPose(), old.getLeftArmPose(), animationState);
 		customArmorstand.setLeftArmPose(new EulerAngle(
-				customArmorstand.getLeftArmPose().getX() + LAX,
-				customArmorstand.getLeftArmPose().getY() + LAY,
-				customArmorstand.getLeftArmPose().getZ() + LAZ
+				animationState.getCustomArmorstand().getLeftArmPose().getX() -(leftArmVector.getX() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getLeftArmPose().getY() -(leftArmVector.getY() * (animationState.getTicks() - ticks)),
+				animationState.getCustomArmorstand().getLeftArmPose().getZ() -(leftArmVector.getZ() * (animationState.getTicks() - ticks))
 		));
 
+		//
+		// Armor
+		//
 		customArmorstand.setItemInMainHand(animationState.getCustomArmorstand().getItemInMainHand());
 		customArmorstand.setItemInOffHand(animationState.getCustomArmorstand().getItemInOffHand());
 		customArmorstand.setHelmet(animationState.getCustomArmorstand().getHelmet());
@@ -118,6 +107,9 @@ public class AnimationTask extends FortressRunnable {
 		customArmorstand.setLeggings(animationState.getCustomArmorstand().getLeggings());
 		customArmorstand.setBoots(animationState.getCustomArmorstand().getBoots());
 
+		//
+		// Other
+		//
 		customArmorstand.setSmall(animationState.getCustomArmorstand().isSmall());
 		customArmorstand.setGlowing(animationState.getCustomArmorstand().isGlowing());
 		customArmorstand.setInvisible(animationState.getCustomArmorstand().isInvisible());
@@ -138,13 +130,28 @@ public class AnimationTask extends FortressRunnable {
 		}
 	}
 
+	private Vector getVector(EulerAngle base, EulerAngle old, AnimationState animationState) {
+		double LAX = getValue(base.getX(), old.getX(), animationState.getTicks());
+		double LAY = getValue(base.getY(), old.getY(), animationState.getTicks());
+		double LAZ = getValue(base.getZ(), old.getZ(), animationState.getTicks());
+
+		return new Vector(LAX, LAY, LAZ);
+	}
+
+	private Vector getVector(Location base, Location old, AnimationState animationState) {
+		double LAX = getValue(base.getX(), old.getX(), animationState.getTicks());
+		double LAY = getValue(base.getY(), old.getY(), animationState.getTicks());
+		double LAZ = getValue(base.getZ(), old.getZ(), animationState.getTicks());
+
+		return new Vector(LAX, LAY, LAZ);
+	}
+
 	private double getValue(double state, double last, int ticks) {
-		double t = ticks;
 		if(ticks == 0) {
-			t = 0.00001;
+			return 0;
 		}
 
-		double i = Math.abs(last - state) / t;
+		double i = Math.abs(last - state) / ticks;
 
 		if(state > last) {
 			return i;

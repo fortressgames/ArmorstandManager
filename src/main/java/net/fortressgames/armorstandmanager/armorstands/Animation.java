@@ -31,11 +31,11 @@ public class Animation {
 		load();
 	}
 
-	public void play(CustomArmorstand customArmorstand) {
-		AnimationTask animationTask = new AnimationTask(customArmorstand, this);
+	public void play(ArmorstandHolder armorstandHolder) {
+		AnimationTask animationTask = new AnimationTask(armorstandHolder, this);
 		animationTask.runTaskTimer(ArmorstandManager.getInstance(), TimeUnit.MILLISECONDS, 1);
 
-		AnimationModule.getInstance().getRunning().put(customArmorstand, animationTask);
+		AnimationModule.getInstance().getRunning().put(armorstandHolder.getCustomArmorstand(), animationTask);
 	}
 
 	public void load() {

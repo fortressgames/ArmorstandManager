@@ -5,7 +5,9 @@ import net.fortressgames.armorstandmanager.ArmorstandManager;
 import net.fortressgames.fortressapi.entities.CustomArmorstand;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class AnimationModule {
 
@@ -22,6 +24,10 @@ public class AnimationModule {
 
 	public Animation getAnimation(String name) {
 		return this.animations.get(name);
+	}
+
+	public List<String> getAllAnimations() {
+		return new ArrayList<>(animations.keySet());
 	}
 
 	public void create(String name) {
