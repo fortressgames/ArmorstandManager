@@ -36,12 +36,10 @@ public class ASACommand extends CommandBase {
 			sender.sendMessage(ChatColor.WHITE + "/asa listpos " + ChatColor.GRAY + "- List all pos");
 			sender.sendMessage(ChatColor.WHITE + "/asa setpos " + ChatColor.of("#BA68C8") + "<number> <ticks> " + ChatColor.GRAY + "- Override a current statue");
 			sender.sendMessage(ChatColor.WHITE + "/asa movepos " + ChatColor.of("#BA68C8") + "<number> " + ChatColor.GRAY + "- Return the armorstand to a state");
-			sender.sendMessage(ChatColor.WHITE + "/asa play " + ChatColor.of("#BA68C8") + "<id> " + ChatColor.GRAY + "- Play an animation");
+			sender.sendMessage(ChatColor.WHITE + "/asa play " + ChatColor.of("#BA68C8") + "<id> <reverse>" + ChatColor.GRAY + "- Play an animation");
 			sender.sendMessage(ChatColor.WHITE + "/asa stop " + ChatColor.of("#BA68C8") + "<id> " + ChatColor.GRAY + "- Stop an animation");
 			sender.sendMessage(ChatColor.WHITE + "/asa loop " + ChatColor.of("#BA68C8") + "<id> " + ChatColor.GRAY + "- Toggle looping");
-			//sender.sendMessage(ChatColor.WHITE + "/asa reverse " + ChatColor.of("#BA68C8") + "<name> " + ChatColor.GRAY + "- Toggle reverse");
 			sender.sendMessage(ChatColor.WHITE + "/asa set " + ChatColor.of("#BA68C8") + "<name> " + ChatColor.GRAY + "- Set an armorstand animation");
-			//sender.sendMessage(ChatColor.WHITE + "/asa clone " + ChatColor.of("#BA68C8") + "<name> <new-name>" + ChatColor.GRAY + "- Clone an animation");
 			sender.sendMessage(Lang.LINE);
 			return;
 		}
@@ -268,76 +266,12 @@ public class ASACommand extends CommandBase {
 				//
 				// stop
 				//
-				case "stop" -> {
-					if(args.length == 2) {
-						ArmorstandHolder ash = null;
-
-						try {
-							for(ArmorstandHolder armorstand : ArmorstandModule.getInstance().getCustomArmorstands()) {
-								if(armorstand.getID() == Integer.parseInt(args[1])) {
-									ash = armorstand;
-									break;
-								}
-							}
-
-							if(ash == null) {
-								sender.sendMessage(ASLang.UNKNOWN_ID);
-								return;
-							}
-
-							if(AnimationModule.getInstance().getRunning().containsKey(ash.getCustomArmorstand())) {
-								AnimationModule.getInstance().getRunning().get(ash.getCustomArmorstand()).stop();
-							}
-
-							sender.sendMessage(ASLang.ANIMATION_STOPPED);
-
-						} catch (IndexOutOfBoundsException e) {
-							sender.sendMessage(ASLang.ERROR_INDEX_OUT_OF_BOUNDS);
-						} catch (NumberFormatException e) {
-							sender.sendMessage(ASLang.ERROR_NUMBER_FORMAT);
-						}
-					}
-				}
+				case "stop" -> stop(args, sender);
 
 				//
 				// play
 				//
-				case "play" -> {
-					if(args.length == 2) {
-						try {
-							ArmorstandHolder ash = null;
-
-							for(ArmorstandHolder armorstand : ArmorstandModule.getInstance().getCustomArmorstands()) {
-								if(armorstand.getID() == Integer.parseInt(args[1])) {
-									ash = armorstand;
-									break;
-								}
-							}
-
-							if(ash == null) {
-								sender.sendMessage(ASLang.UNKNOWN_ID);
-								return;
-							}
-
-							if(AnimationModule.getInstance().getRunning().containsKey(ash.getCustomArmorstand())) {
-								sender.sendMessage(ASLang.ANIMATION_RUNNING);
-								return;
-							}
-
-							if(ash.getAnimation() != null) {
-								ash.getAnimation().play(ash);
-
-							} else {
-								sender.sendMessage(ASLang.ANIMATION_UNKNOWN);
-							}
-
-						} catch (IndexOutOfBoundsException e) {
-							sender.sendMessage(ASLang.ERROR_INDEX_OUT_OF_BOUNDS);
-						} catch (NumberFormatException e) {
-							sender.sendMessage(ASLang.ERROR_NUMBER_FORMAT);
-						}
-					}
-				}
+				case "play" -> play(args, sender);
 
 				//
 				// create
@@ -397,6 +331,91 @@ public class ASACommand extends CommandBase {
 						sender.sendMessage(ASLang.NO_AS_SELECTED);
 					}
 				}
+			}
+		} else {
+			switch (args[0].toLowerCase()) {
+				//
+				// play
+				//
+				case "play" -> play(args, sender);
+
+				//
+				// stop
+				//
+				case "stop" -> stop(args, sender);
+			}
+		}
+	}
+
+	private void stop(String[] args, CommandSender sender) {
+		if(args.length == 2) {
+			ArmorstandHolder ash = null;
+
+			try {
+				for(ArmorstandHolder armorstand : ArmorstandModule.getInstance().getCustomArmorstands()) {
+					if(armorstand.getID() == Integer.parseInt(args[1])) {
+						ash = armorstand;
+						break;
+					}
+				}
+
+				if(ash == null) {
+					sender.sendMessage(ASLang.UNKNOWN_ID);
+					return;
+				}
+
+				if(AnimationModule.getInstance().getRunning().containsKey(ash.getCustomArmorstand())) {
+					AnimationModule.getInstance().getRunning().get(ash.getCustomArmorstand()).stop();
+				}
+
+				sender.sendMessage(ASLang.ANIMATION_STOPPED);
+
+			} catch (IndexOutOfBoundsException e) {
+				sender.sendMessage(ASLang.ERROR_INDEX_OUT_OF_BOUNDS);
+			} catch (NumberFormatException e) {
+				sender.sendMessage(ASLang.ERROR_NUMBER_FORMAT);
+			}
+		}
+	}
+
+	private void play(String[] args, CommandSender sender) {
+		if(args.length >= 2) {
+			try {
+				ArmorstandHolder ash = null;
+
+				for(ArmorstandHolder armorstand : ArmorstandModule.getInstance().getCustomArmorstands()) {
+					if(armorstand.getID() == Integer.parseInt(args[1])) {
+						ash = armorstand;
+						break;
+					}
+				}
+
+				if(ash == null) {
+					sender.sendMessage(ASLang.UNKNOWN_ID);
+					return;
+				}
+
+				if(AnimationModule.getInstance().getRunning().containsKey(ash.getCustomArmorstand())) {
+					sender.sendMessage(ASLang.ANIMATION_RUNNING);
+					return;
+				}
+
+				if(ash.getAnimation() != null) {
+					if(args.length == 3) {
+						ash.getAnimation().play(ash, Boolean.parseBoolean(args[2]));
+
+					} else {
+						ash.getAnimation().play(ash, false);
+					}
+
+				} else {
+					sender.sendMessage(ASLang.ANIMATION_UNKNOWN);
+				}
+
+			} catch (IndexOutOfBoundsException e) {
+				sender.sendMessage(ASLang.ERROR_INDEX_OUT_OF_BOUNDS);
+			} catch (NumberFormatException e) {
+				sender.sendMessage(ASLang.ERROR_NUMBER_FORMAT);
 			}
 		}
 	}

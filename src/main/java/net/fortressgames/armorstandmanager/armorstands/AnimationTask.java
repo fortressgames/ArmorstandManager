@@ -17,12 +17,19 @@ public class AnimationTask extends FortressRunnable {
 	private int frame;
 	private int ticks;
 
-	public AnimationTask(ArmorstandHolder armorstandHolder, Animation animation) {
+	private final boolean reverse;
+
+	public AnimationTask(ArmorstandHolder armorstandHolder, Animation animation, boolean reverse) {
 		this.armorstandHolder = armorstandHolder;
 		this.customArmorstand = armorstandHolder.getCustomArmorstand();
 		this.animation = animation;
+		this.reverse = reverse;
 
 		old = new CustomArmorstand(customArmorstand);
+
+		if(reverse) {
+			frame = animation.getAnimationStates().size() -1;
+		}
 	}
 
 	private CustomArmorstand old;
@@ -31,15 +38,29 @@ public class AnimationTask extends FortressRunnable {
 	public void run() {
 
 		// end
-		if(frame >= animation.getAnimationStates().size()) {
+		if(reverse) {
+			if(frame < 0) {
 
-			if(armorstandHolder.isLoopAnimation()) {
-				frame = 0;
+				if(armorstandHolder.isLoopAnimation()) {
+					frame = animation.getAnimationStates().size() -1;
+					return;
+				}
+
+				stop();
 				return;
 			}
 
-			stop();
-			return;
+		} else {
+			if(frame >= animation.getAnimationStates().size()) {
+
+				if(armorstandHolder.isLoopAnimation()) {
+					frame = 0;
+					return;
+				}
+
+				stop();
+				return;
+			}
 		}
 
 		// target state
@@ -124,7 +145,11 @@ public class AnimationTask extends FortressRunnable {
 		ticks++;
 
 		if(ticks > animationState.getTicks()) {
-			frame++;
+			if(reverse) {
+				frame--;
+			} else {
+				frame++;
+			}
 			ticks = 0;
 			old = new CustomArmorstand(customArmorstand);
 		}

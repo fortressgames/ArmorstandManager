@@ -31,8 +31,8 @@ public class Animation {
 		load();
 	}
 
-	public void play(ArmorstandHolder armorstandHolder) {
-		AnimationTask animationTask = new AnimationTask(armorstandHolder, this);
+	public void play(ArmorstandHolder armorstandHolder, boolean reverse) {
+		AnimationTask animationTask = new AnimationTask(armorstandHolder, this, reverse);
 		animationTask.runTaskTimer(ArmorstandManager.getInstance(), TimeUnit.MILLISECONDS, 1);
 
 		AnimationModule.getInstance().getRunning().put(armorstandHolder.getCustomArmorstand(), animationTask);

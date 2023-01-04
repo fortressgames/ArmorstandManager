@@ -147,7 +147,7 @@ public class ArmorstandModule {
 				ArmorstandModule.getInstance().getCustomArmorstands().add(armorstandHolder);
 
 				if(ArmorstandManager.getInstance().getConfig().getStringList("Animation-RunOnStart").contains(String.valueOf(armorstandHolder.getID()))) {
-					armorstandHolder.getAnimation().play(armorstandHolder);
+					armorstandHolder.getAnimation().play(armorstandHolder, false);
 				}
 			});
 		}

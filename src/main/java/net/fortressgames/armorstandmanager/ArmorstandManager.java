@@ -93,3 +93,4 @@ public class ArmorstandManager extends JavaPlugin {
 
 //TODO (BUGS)
 // animation gets lost after reload sometimes
+// playing normal then reverse adds a delay before stating the first frame
